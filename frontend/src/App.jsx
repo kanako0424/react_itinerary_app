@@ -1,30 +1,22 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   ChakraProvider,
   Box,
   Button,
-  Stack,
-  Text,
-  IconButton,
-  Avatar,
-  Input,
-  Textarea,
-  Select,
-  HStack,
   VStack,
   Container,
-  Tag,
-  TagLabel,
-  TagCloseButton,
-  Badge,
-  Link,
 } from '@chakra-ui/react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { ResizableBox } from 'react-resizable';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import 'react-resizable/css/styles.css';
+import Header from './components/Header';
+import Navbar from './components/Navbar';
+import DaySelector from './components/DaySelector';
+import TimeColumn from './components/TimeColumn';
+import ParticipantManager from './components/ParticipantManager';
+import Card from './components/Card';
 
 const initialCards = {
-  day1: [{ id: '1', destination: '', mapLink: '', stayTime: '', status: '', reserver: '', notes: '', height: 100, isEditing: false }],
+  day1: [{ id: '1', destination: '', mapLink: '', stayTime: '', status: '', reserver: '', notes: '', height: 100 }],
   day2: [],
   day3: [],
 };
@@ -33,14 +25,14 @@ const App = () => {
   const [cards, setCards] = useState(initialCards);
   const [selectedDay, setSelectedDay] = useState('day1');
   const [participants, setParticipants] = useState([]);
-  const [showPlans, setShowPlans] = useState(true);
+  const [tripTitle, setTripTitle] = useState('旅行のタイトル');
   const [showParticipants, setShowParticipants] = useState(false);
+  const [showPlans, setShowPlans] = useState(true);
   const [newParticipant, setNewParticipant] = useState('');
   const [days, setDays] = useState(['day1', 'day2', 'day3']);
-  const [tripTitle, setTripTitle] = useState('旅行のタイトル');
 
   const handleAddCard = () => {
-    const newCard = { id: `${cards[selectedDay].length + 1}`, destination: '', mapLink: '', stayTime: '', status: '', reserver: '', notes: '', height: 100, isEditing: true };
+    const newCard = { id: `${cards[selectedDay].length + 1}`, destination: '', mapLink: '', stayTime: '', status: '', reserver: '', notes: '', height: 100 };
     setCards({ ...cards, [selectedDay]: [...cards[selectedDay], newCard] });
   };
 
@@ -98,67 +90,23 @@ const App = () => {
     const startMinute = (startTime % 48) * 0.6;
     const endMinute = (endTime % 48) * 0.6;
     const durationHours = endHour - startHour;
-    const durationMinutes = endMinute - startMinute;
+    const durationMinutes = (endMinute - startMinute).toFixed(0);
 
-    newCards[index].stayTime = `${durationHours}時間${Math.floor(durationMinutes,2)}分`;
-    setCards({ ...cards, [day]: newCards });
-  };
-
-  const handleSaveCard = (day, index) => {
-    const newCards = [...cards[day]];
-    newCards[index].isEditing = false;
-    setCards({ ...cards, [day]: newCards });
-  };
-
-  const handleEditCard = (day, index) => {
-    const newCards = [...cards[day]];
-    newCards[index].isEditing = true;
+    newCards[index].stayTime = `${durationHours}時間${durationMinutes}分`;
     setCards({ ...cards, [day]: newCards });
   };
 
   return (
     <ChakraProvider>
       <Box bg="gray.100" minH="100vh">
-        <Box bg="white" p={4} shadow="md">
-          <HStack justifyContent="space-between">
-            <Input
-              value={tripTitle}
-              onChange={(e) => setTripTitle(e.target.value)}
-              fontSize="xl"
-              border="none"
-              _focus={{ border: 'none' }}
-            />
-            <Avatar name="User" src="https://bit.ly/broken-link" />
-          </HStack>
-        </Box>
+        <Header tripTitle={tripTitle} setTripTitle={setTripTitle} />
+        <Navbar setShowPlans={setShowPlans} setShowParticipants={setShowParticipants} />
 
         {showPlans && (
           <Container pb={10}>
-
-            <Box bg="white" p={4} shadow="md" mt={4}>
-              <HStack spacing={4}>
-                {days.map((day) => (
-                  <Button
-                    key={day}
-                    onClick={() => setSelectedDay(day)}
-                    bg={selectedDay === day ? 'blue.500' : 'gray.200'}
-                    color={selectedDay === day ? 'white' : 'black'}
-                  >
-                    {day}
-                  </Button>
-                ))}
-                <Button onClick={handleAddDay}>+</Button>
-              </HStack>
-            </Box>
-
+            <DaySelector days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} handleAddDay={handleAddDay} />
             <Container maxW="container.md" mt={4} display="flex">
-              <Box w="50px" mr={4}>
-                {Array.from({ length: 24 }).map((_, i) => (
-                  <Box key={i} h={12} textAlign="right" pr={2}>
-                    <Text fontSize="sm">{`${i}:00`}</Text>
-                  </Box>
-                ))}
-              </Box>
+              <TimeColumn />
               <Box flex="1">
                 <DragDropContext onDragEnd={handleDragEnd}>
                   {days.map((day) => (
@@ -171,98 +119,15 @@ const App = () => {
                           display={selectedDay === day ? 'block' : 'none'}
                         >
                           {cards[day].map((card, index) => (
-                            <Draggable key={card.id} draggableId={card.id} index={index}>
-                              {(provided) => (
-                                <ResizableBox
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  width="100%"
-                                  height={card.height}
-                                  minConstraints={[100, 50]}
-                                  maxConstraints={[100, 600]}
-                                  onResize={(e, data) => handleResize(day, index, e, data)}
-                                >
-                                  <Box
-                                    bg="white"
-                                    p={4}
-                                    shadow="md"
-                                    w="100%"
-                                    h="100%"
-                                  >
-                                    {card.isEditing ? (
-                                      <>
-                                        <HStack justifyContent="space-between">
-                                          <Box>
-                                            <Input
-                                              placeholder="目的地"
-                                              value={card.destination}
-                                              onChange={(e) => handleCardChange(day, index, 'destination', e.target.value)}
-                                            />
-                                            <Input
-                                              placeholder="GoogleMapのリンク"
-                                              value={card.mapLink}
-                                              mt={2}
-                                              onChange={(e) => handleCardChange(day, index, 'mapLink', e.target.value)}
-                                            />
-                                            <Select
-                                              placeholder="滞在予定時間"
-                                              value={card.stayTime}
-                                              mt={2}
-                                              onChange={(e) => handleCardChange(day, index, 'stayTime', e.target.value)}
-                                            >
-                                              <option value="1h">1時間</option>
-                                              <option value="2h">2時間</option>
-                                              <option value="30m">30分</option>
-                                            </Select>
-                                            <Select
-                                              placeholder="予約のステータス"
-                                              value={card.status}
-                                              mt={2}
-                                              onChange={(e) => handleCardChange(day, index, 'status', e.target.value)}
-                                            >
-                                              <option value="reserved">予約済み</option>
-                                              <option value="not_reserved">未予約</option>
-                                              <option value="no_reservation_needed">予約不要</option>
-                                            </Select>
-                                            <Select
-                                              placeholder="予約予定者"
-                                              value={card.reserver}
-                                              mt={2}
-                                              onChange={(e) => handleCardChange(day, index, 'reserver', e.target.value)}
-                                            >
-                                              {participants.map((participant, i) => (
-                                                <option key={i} value={participant}>{participant}</option>
-                                              ))}
-                                            </Select>
-                                            <Textarea
-                                              placeholder="メモ"
-                                              value={card.notes}
-                                              mt={2}
-                                              onChange={(e) => handleCardChange(day, index, 'notes', e.target.value)}
-                                            />
-                                          </Box>
-                                        </HStack>
-                                        <Button mt={2} onClick={() => handleSaveCard(day, index)}>保存</Button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <HStack justifyContent="space-between">
-                                          <Box>
-                                            <Text fontWeight="bold">{card.destination}</Text>
-                                            <Link href={card.mapLink} color="blue.500" isExternal>Google Mapで見る</Link>
-                                            <Text>{card.stayTime}</Text>
-                                            <Badge colorScheme="green">予約者: {card.reserver}</Badge>
-                                            <Text>{card.notes}</Text>
-                                          </Box>
-                                        </HStack>
-                                        <Button mt={2} onClick={() => handleEditCard(day, index)}>編集</Button>
-                                      </>
-                                    )}
-                                  </Box>
-                                </ResizableBox>
-                              )}
-                            </Draggable>
+                            <Card
+                              key={card.id}
+                              card={card}
+                              index={index}
+                              day={day}
+                              participants={participants}
+                              handleCardChange={handleCardChange}
+                              handleResize={handleResize}
+                            />
                           ))}
                           {provided.placeholder}
                         </VStack>
@@ -273,36 +138,17 @@ const App = () => {
                 <Button onClick={handleAddCard} mt={4} w="100%">カードを追加</Button>
               </Box>
             </Container>
-         </Container>
+          </Container>
         )}
 
-        <Box bg="white" p={4} shadow="md" position="fixed" bottom="0" width="100%">
-          <HStack justifyContent="space-around">
-            <Button onClick={() => {setShowParticipants(false), setShowPlans(true)}}>旅程</Button>
-            <Button onClick={() => {setShowParticipants(true), setShowPlans(false)}}>参加者</Button>
-          </HStack>
-        </Box>
-
         {showParticipants && (
-          <Box bg="white" p={4} shadow="md" mt={4}>
-            <Text fontSize="xl" mb={4}>参加者を登録</Text>
-            <HStack>
-              <Input
-                placeholder="参加者名"
-                value={newParticipant}
-                onChange={(e) => setNewParticipant(e.target.value)}
-              />
-              <Button onClick={handleAddParticipant}>追加</Button>
-            </HStack>
-            <HStack mt={4} spacing={2} wrap="wrap">
-              {participants.map((participant, index) => (
-                <Tag key={index} size="lg" colorScheme="blue" borderRadius="full">
-                  <TagLabel>{participant}</TagLabel>
-                  <TagCloseButton onClick={() => handleRemoveParticipant(participant)} />
-                </Tag>
-              ))}
-            </HStack>
-          </Box>
+          <ParticipantManager
+            participants={participants}
+            newParticipant={newParticipant}
+            setNewParticipant={setNewParticipant}
+            handleAddParticipant={handleAddParticipant}
+            handleRemoveParticipant={handleRemoveParticipant}
+          />
         )}
       </Box>
     </ChakraProvider>
