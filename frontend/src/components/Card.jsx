@@ -2,6 +2,7 @@ import {
   Box,
   Spacer,
   VStack,
+  Flex,
   HStack,
   Text,
   Badge,
@@ -26,36 +27,47 @@ const Card = ({ updateCard, card, index, day, participants }) => {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
+
         >
-          <Box borderRadius={16} bg={"gray.100"} p={5} w={"100%"} mb={2}>
-            <HStack w={"100%"}>
+          <HStack alignItems={"stretch"} mb={6}>
+
+            <Flex direction="column" w="15%" justifyContent="space-between" p={1}>
+              <Text>{card.startTime}</Text>
+              <Spacer />
+              <Text>{card.endTime}</Text>
+            </Flex>
+
+            <HStack borderRadius={16} bg={"gray.100"} p={5} w={"85%"} mb={2}>
               <Box>
                 <Text fontWeight="bold">{card.destination}</Text>
-                <Link href={card.mapLink} color="blue.500" isExternal>
-                  地図を開く
-                </Link>
-                <Text>
-                  <span>{card.startTime}</span>ー<span>{card.endTime}</span>
+                <Text mt={2}>
+                  <Link href={card.mapLink} color="blue.500" mt={2} isExternal>
+                    地図を開く
+                  </Link>
                 </Text>
-
-                <HStack width={"80%"} flexWrap={"wrap"}>
-
-                <Badge colorScheme="green" ml={0}>
-                  ステータス: {card.status ? "決定" : "未定"}
-                </Badge>
-                <Badge colorScheme="blue" mr={0}>
-                  予約者: {card.participantsInCard[card.reserver]}
-                </Badge>
-                <Badge colorScheme="yellow">予約の有無: {card.reserve == 1 ? "予約済み(予約不要)" : card.reserve == 0 ? "未予約" : "" }</Badge>
-
+                <HStack width={"80%"} flexWrap={"wrap"} mt={2}>
+                  <Badge colorScheme="green" ml={0}>
+                    状態: {card.status ? "決定" : "候補"}
+                  </Badge>
+                  <Badge colorScheme="blue" mr={0}>
+                    予約者: {card.participantsInCard[card.reserver]}
+                  </Badge>
+                  <Badge colorScheme="yellow">
+                    予約:{" "}
+                    {card.reserve == 1
+                      ? "済み(不要)"
+                      : card.reserve == 0
+                      ? "まだ"
+                      : ""}
+                  </Badge>
                 </HStack>
 
-                <Text>{card.notes}</Text>
+                <Text mt={2}>{card.notes}</Text>
               </Box>
 
               <Spacer />
 
-              <VStack direction={"column"} align={"end"} justify={"start"}>
+              <VStack h={"100%"} justify={"space-between"} align={"end"}>
                 <EditModal
                   updateCard={updateCard}
                   card={card}
@@ -65,11 +77,11 @@ const Card = ({ updateCard, card, index, day, participants }) => {
 
                 <Spacer />
 
-                <HStack wrap="wrap" align={"space-between"} justify={"end"} flexWrap={"nowrap"}
-                position={"relative"}
-                bottom={"-24px"}
+                <HStack
+                  wrap="wrap"
+                  justify={"end"}
+                  flexWrap={"nowrap"}
                 >
-
                   {card.participantsInCard.map((participant, index) => (
                     <Tag
                       key={index}
@@ -88,7 +100,7 @@ const Card = ({ updateCard, card, index, day, participants }) => {
                 </HStack>
               </VStack>
             </HStack>
-          </Box>
+          </HStack>
         </div>
       )}
     </Draggable>

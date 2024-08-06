@@ -3,6 +3,7 @@ import {
   FormControl,
   FormLabel,
   VStack,
+  HStack,
   Select,
   Input,
   Modal,
@@ -35,6 +36,7 @@ function EditModal({ updateCard, card, day, participants }) {
     participantsInCard: card.participantsInCard,
     notes: card.notes,
   });
+  // console.log(card);
 
   // モーダルが開かれたときに最新のCard情報でinputsを更新
   useEffect(() => {
@@ -51,7 +53,6 @@ function EditModal({ updateCard, card, day, participants }) {
         notes: card.notes,
       });
     }
-    console.log(inputs);
   }, [isOpen, card]);
 
   const handleSaveCard = (e) => {
@@ -67,12 +68,14 @@ function EditModal({ updateCard, card, day, participants }) {
 
   return (
     <>
+    <HStack>
       <EditIcon
         onClick={onOpen}
         variant="ghost"
         colorscheme="blue"
         aria-label="See menu"
       />
+    </HStack>
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -135,26 +138,21 @@ function EditModal({ updateCard, card, day, participants }) {
                   />
                 </FormControl>
                 <FormControl mt={2}>
-                  <FormLabel>ステータス</FormLabel>
+                  <FormLabel>ここに行く</FormLabel>
                   <Select
-                    placeholder="ステータス"
                     value={inputs.status}
                     onChange={(e) =>
                       setInputs((prev) => ({ ...prev, status: e.target.value }))
                     }
                   >
-                    <option value="reserved">決定</option>
-                    <option value="not_reserved">候補</option>
-                    <option value="no_reservation_needed">
-                      キャンセル予定
-                    </option>
+                    <option value="1">決定</option>
+                    <option value="0">候補</option>
                   </Select>
                 </FormControl>
                 <FormControl mt={2}>
-                  <FormLabel>予約予定者</FormLabel>
+                  <FormLabel>予約者</FormLabel>
                   <Select
-                    placeholder="予約予定者"
-                    value={inputs.participantsInCard[inputs.reserver]}
+                    value={inputs.reserver}
                     onChange={(e) =>
                       setInputs((prev) => ({
                         ...prev,
@@ -162,7 +160,7 @@ function EditModal({ updateCard, card, day, participants }) {
                       }))
                     }
                   >
-                    {inputs.participantsInCard.map((participant, i) => (
+                    {participants.map((participant, i) => (
                       <option key={i} value={i}>
                         {participant}
                       </option>
@@ -170,9 +168,8 @@ function EditModal({ updateCard, card, day, participants }) {
                   </Select>
                 </FormControl>
                 <FormControl mt={2}>
-                  <FormLabel>予約のステータス</FormLabel>
+                  <FormLabel>予約状況</FormLabel>
                   <Select
-                    placeholder="予約のステータス"
                     value={inputs.reserve}
                     onChange={(e) =>
                       setInputs((prev) => ({
@@ -181,14 +178,14 @@ function EditModal({ updateCard, card, day, participants }) {
                       }))
                     }
                   >
-                    <option value="reserved">予約済み（予約不要）</option>
-                    <option value="not_reserved">未予約</option>
+                    <option value="1">済み（不要）</option>
+                    <option value="0">まだ</option>
                   </Select>
                 </FormControl>
                 <FormControl mt={2}>
                   <FormLabel>参加者</FormLabel>
                   <CheckboxGroup
-                    defaultValue={participants}
+                    value={inputs.participantsInCard}
                     onChange={(values) =>
                       setInputs((prev) => ({
                         ...prev,
@@ -197,7 +194,7 @@ function EditModal({ updateCard, card, day, participants }) {
                     }
                   >
                     {participants?.map((participant, i) => (
-                      <Checkbox key={i} value={participant}>
+                      <Checkbox key={i} value={participant} mr={4}>
                         {participant}
                       </Checkbox>
                     ))}

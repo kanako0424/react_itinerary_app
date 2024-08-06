@@ -85,7 +85,7 @@ const Trip = () => {
     setTimeout(() => {
       const addButton = document.getElementById("add-card-button");
       if (addButton) {
-        addButton.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        addButton.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }, 100);
   }, [selectedDay, participants, setCards, cards]);
@@ -122,6 +122,7 @@ const Trip = () => {
         card.id === updatedCard.id ? updatedCard : card
       ),
     }));
+    // console.log(cards[day]);
   };
 
   const daysContextValue = useMemo(() => ({ days, setDays }), [days]);
@@ -136,20 +137,16 @@ const Trip = () => {
         <ChakraProvider>
           <Box bg="white" minH="100vh">
             <Box     
-              bg="white"
-              shadow="md"
-              position="fixed"
-              top="0"
-              width="100%"
-              zIndex={1}
+
             >
               <Header />
-              <DaySelector cards={cards} setCards={setCards} />
             </Box>
             <Navbar setShowParticipants={setShowParticipants} setShowPlans={setShowPlans} />
 
-            {showPlans && (
+            {showPlans && (<>
+                                  <DaySelector cards={cards} setCards={setCards} />
                 <Container maxW="container.md" pb={"150px"} pt={"150px"}>
+
                   <Box
                     mt={4}
                     overflowY="auto"
@@ -190,7 +187,7 @@ const Trip = () => {
                   >
                     カードを追加
                   </Button>
-                </Container>
+                </Container></>
             )}
 
             {showParticipants && (
