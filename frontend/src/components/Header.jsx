@@ -5,13 +5,16 @@ import {
     HStack,
   } from '@chakra-ui/react';
   import PropTypes from 'prop-types';
+  import { useState } from "react";
 
 
 
-export default function Header({ tripTitle, setTripTitle }) {
+export default function Header() {
+    const [tripTitle, setTripTitle] = useState('旅行のタイトル');
+
 
     return (
-        <Box bg="white" p={4} shadow="md">
+        <Box bg="white" pt={4} pr={6} pl={6} pb={4} shadow="sm">
             <HStack justifyContent="space-between">
                 <Input
                 value={tripTitle}
@@ -20,7 +23,7 @@ export default function Header({ tripTitle, setTripTitle }) {
                 border="none"
                 _focus={{ border: 'none' }}
                 />
-                <Avatar name="User" src="https://bit.ly/broken-link" />
+                <Avatar name="User" src="https://bit.ly/broken-link" w={10} h={10}/>
             </HStack>
         </Box>
     )

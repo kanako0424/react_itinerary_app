@@ -1,116 +1,97 @@
-import { useState } from 'react';
-import { Box, HStack, Input, Select, Textarea, Button, Text, Badge, Link, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from '@chakra-ui/react';
-import { Draggable } from 'react-beautiful-dnd';
-import 'react-resizable/css/styles.css';
-import PropTypes from 'prop-types';
-import ResizableCard from './ResizableCard';
+import {
+  Box,
+  Spacer,
+  VStack,
+  HStack,
+  Text,
+  Badge,
+  Link,
+  Tag,
+  TagLabel,
+} from "@chakra-ui/react";
+import { Draggable } from "@hello-pangea/dnd";
+import "react-resizable/css/styles.css";
+import PropTypes from "prop-types";
+import EditModal from "./EditModal.jsx";
 
-const Card = ({ card, index, day, participants, handleCardChange, handleResize }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleSave = () => {
-    onClose();
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    onClose();
-    setIsEditing(false);
-  };
-
+const Card = ({ updateCard, card, index, day, participants }) => {
   return (
-    <>
-      {isEditing ? (
-        <>
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>編集</ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <HStack justifyContent="space-between">
-                  <Box>
-                    <Input
-                      placeholder="目的地"
-                      value={card.destination}
-                      onChange={(e) => handleCardChange(day, index, 'destination', e.target.value)}
-                    />
-                    <Input
-                      placeholder="GoogleMapのリンク"
-                      value={card.mapLink}
-                      mt={2}
-                      onChange={(e) => handleCardChange(day, index, 'mapLink', e.target.value)}
-                    />
-                    <Select
-                      placeholder="滞在予定時間"
-                      value={card.stayTime}
-                      mt={2}
-                      onChange={(e) => handleCardChange(day, index, 'stayTime', e.target.value)}
-                    >
-                      <option value="1h">1時間</option>
-                      <option value="2h">2時間</option>
-                      <option value="30m">30分</option>
-                    </Select>
-                    <Select
-                      placeholder="予約のステータス"
-                      value={card.status}
-                      mt={2}
-                      onChange={(e) => handleCardChange(day, index, 'status', e.target.value)}
-                    >
-                      <option value="reserved">予約済み</option>
-                      <option value="not_reserved">未予約</option>
-                      <option value="no_reservation_needed">予約不要</option>
-                    </Select>
-                    <Select
-                      placeholder="予約予定者"
-                      value={card.reserver}
-                      mt={2}
-                      onChange={(e) => handleCardChange(day, index, 'reserver', e.target.value)}
-                    >
-                      {participants.map((participant, i) => (
-                        <option key={i} value={participant}>{participant}</option>
-                      ))}
-                    </Select>
-                    <Textarea
-                      placeholder="メモ"
-                      value={card.notes}
-                      mt={2}
-                      onChange={(e) => handleCardChange(day, index, 'notes', e.target.value)}
-                    />
-                  </Box>
+    <Draggable
+      key={String(card.id)}
+      draggableId={String(card.id)}
+      index={index}
+    >
+      {(provided) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+        >
+          <Box borderRadius={16} bg={"gray.100"} p={5} w={"100%"} mb={2}>
+            <HStack w={"100%"}>
+              <Box>
+                <Text fontWeight="bold">{card.destination}</Text>
+                <Link href={card.mapLink} color="blue.500" isExternal>
+                  地図を開く
+                </Link>
+                <Text>
+                  <span>{card.startTime}</span>ー<span>{card.endTime}</span>
+                </Text>
+
+                <HStack width={"80%"} flexWrap={"wrap"}>
+
+                <Badge colorScheme="green" ml={0}>
+                  ステータス: {card.status ? "決定" : "未定"}
+                </Badge>
+                <Badge colorScheme="blue" mr={0}>
+                  予約者: {card.participantsInCard[card.reserver]}
+                </Badge>
+                <Badge colorScheme="yellow">予約の有無: {card.reserve == 1 ? "予約済み(予約不要)" : card.reserve == 0 ? "未予約" : "" }</Badge>
+
                 </HStack>
-              </ModalBody>
-              <ModalFooter>
-                <Button colorScheme="blue" mr={3} onClick={handleSave}>
-                  保存
-                </Button>
-                <Button variant="ghost" onClick={handleCancel}>キャンセル</Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </>
-      ) : (
-        <Draggable key={card.id} draggableId={card.id} index={index}>
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-              <ResizableCard height={card.height} onResize={(e, data) => handleResize(day, index, e, data)}>
-                <HStack justifyContent="space-between">
-                  <Box>
-                    <Text fontWeight="bold">{card.destination}</Text>
-                    <Link href={card.mapLink} color="blue.500" isExternal>Google Mapで見る</Link>
-                    <Text>{card.stayTime}</Text>
-                    <Badge colorScheme="green">予約者: {card.reserver}</Badge>
-                    <Text>{card.notes}</Text>
-                  </Box>
+
+                <Text>{card.notes}</Text>
+              </Box>
+
+              <Spacer />
+
+              <VStack direction={"column"} align={"end"} justify={"start"}>
+                <EditModal
+                  updateCard={updateCard}
+                  card={card}
+                  day={day}
+                  participants={participants}
+                />
+
+                <Spacer />
+
+                <HStack wrap="wrap" align={"space-between"} justify={"end"} flexWrap={"nowrap"}
+                position={"relative"}
+                bottom={"-24px"}
+                >
+
+                  {card.participantsInCard.map((participant, index) => (
+                    <Tag
+                      key={index}
+                      size="md"
+                      colorScheme="blue"
+                      borderRadius="full"
+                      ml={-4}
+                      w={8}
+                      h={8}
+                      borderColor={"white"}
+                      borderWidth={"2px"}
+                    >
+                      <TagLabel>{participant.slice(0, 1)}</TagLabel>
+                    </Tag>
+                  ))}
                 </HStack>
-                <Button mt={2} onClick={() => { setIsEditing(true); onOpen(); }}>編集</Button>
-              </ResizableCard>
-            </div>
-          )}
-        </Draggable>
+              </VStack>
+            </HStack>
+          </Box>
+        </div>
       )}
-    </>
+    </Draggable>
   );
 };
 
@@ -119,8 +100,7 @@ Card.propTypes = {
   index: PropTypes.number,
   day: PropTypes.any,
   participants: PropTypes.array,
-  handleCardChange: PropTypes.func,
-  handleResize: PropTypes.func,
+  updateCard: PropTypes.func,
 };
 
 export default Card;
