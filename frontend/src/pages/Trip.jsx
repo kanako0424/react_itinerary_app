@@ -1,12 +1,14 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   ChakraProvider,
   Box,
+  Text,
   Button,
   VStack,
+  Flex,
   Container,
 } from "@chakra-ui/react";
-import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "react-resizable/css/styles.css";
 import Header from "../components/Header";
 import DaySelector from "../components/DaySelector";
@@ -14,7 +16,7 @@ import { daysContext, selectedDayContext } from "../components/contexts";
 import ParticipantManager from "../components/ParticipantManager";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 const initialCards = {
@@ -34,8 +36,38 @@ const initialCards = {
       order: 0,
     },
   ],
-  2: [],
-  3: [],
+  2: [
+  //   {
+  //     day: 2,
+  //     id: uuidv4(),
+  //     destination: "目的地2",
+  //     mapLink: "",
+  //     startTime: "12:00",
+  //     endTime: "13:00",
+  //     status: 0,
+  //     reserver: 0,
+  //     reserve: 1,
+  //     participantsInCard: ["太郎", "二郎", "三郎"],
+  //     notes: "",
+  //     order: 0,
+  //   },
+  ],
+  3: [
+  //   {
+  //     day: 3,
+  //     id: uuidv4(),
+  //     destination: "目的地3",
+  //     mapLink: "",
+  //     startTime: "12:00",
+  //     endTime: "13:00",
+  //     status: 0,
+  //     reserver: 0,
+  //     reserve: 1,
+  //     participantsInCard: ["太郎", "二郎", "三郎"],
+  //     notes: "",
+  //     order: 0,
+  //   },
+  ],
 };
 
 const initialParticipants = ["太郎", "二郎", "三郎"];
@@ -48,14 +80,23 @@ const initialTrip = {
 };
 
 const Trip = () => {
-  const { tripId } = useParams();
-  const [tripTitle, setTripTitle] = useState(initialTrip.tripTitle);
+  // const { tripId } = useParams();
   const [participants, setParticipants] = useState(initialTrip.participants);
   const [cards, setCards] = useState(initialTrip.cards);
   const [days, setDays] = useState([1, 2, 3]);
   const [selectedDay, setSelectedDay] = useState(1);
   const [showParticipants, setShowParticipants] = useState(false);
   const [showPlans, setShowPlans] = useState(true);
+  const [tripTitle, setTripTitle] = useState(initialTrip.tripTitle);
+
+  useEffect(() => {
+    const dayList = document.getElementById(`day${selectedDay}-list`);
+    if (dayList) {
+      dayList.scrollIntoView({ behavior: "smooth", inline: "start", block: "end" });
+    }
+
+  }, [selectedDay])
+  
 
   const handleAddCard = useCallback(() => {
     let date = new Date();
@@ -66,7 +107,7 @@ const Trip = () => {
 
     const lastOrder =
       cards[selectedDay].length > 0
-        ? cards[selectedDay][cards[selectedDay].length - 1].order
+        ? cards[selectedDay][cards[selectedDay]?.length - 1].order
         : -1;
 
     const newCard = {
@@ -88,6 +129,7 @@ const Trip = () => {
       ...prevCards,
       [selectedDay]: [...(prevCards[selectedDay] || []), newCard],
     }));
+    console.log(cards);
 
     // スクロールを行う
     setTimeout(() => {
@@ -100,29 +142,58 @@ const Trip = () => {
 
   const handleDragEnd = useCallback(
     (result) => {
+      console.log("result: " + result.destination);
       if (!result.destination) return;
 
-      const day = result.source.droppableId;
+      const sourceDay = parseInt(result.source.droppableId);
+      const destinationDay = parseInt(result.destination.droppableId);
 
-      const items = Array.from(cards[day]);
-      const [movedItem] = items.splice(result.source.index, 1);
-      items.splice(result.destination.index, 0, movedItem);
+      const sourceItems = Array.from(cards[sourceDay]);
+      const [movedItem] = sourceItems.splice(result.source.index, 1);
 
-      // Reassign order based on new position
-      const reorderedItems = items.map((item, index) => ({
-        ...item,
-        order: index,
-      }));
+      if (sourceDay === destinationDay) {
+        sourceItems.splice(result.destination.index, 0, movedItem);
+        setCards((prevCards) => ({
+          ...prevCards,
+          [sourceDay]: sourceItems,
+        }));
+      } else {
+        console.log(destinationDay)
+        const destinationItems = Array.from(cards[destinationDay]);
+        destinationItems.splice(result.destination.index, 0, movedItem);
+        setCards((prevCards) => ({
+          ...prevCards,
+          [sourceDay]: sourceItems,
+          [destinationDay]: destinationItems,
+        }));
+      }
 
-      setCards((prevCards) => ({
-        ...prevCards,
-        [day]: reorderedItems,
-      }));
+      setTimeout(() => {
+        setSelectedDay(destinationDay)
+        const dayList = document.getElementById(`day${destinationDay}-list`);
+        if (dayList) {
+          dayList.scrollIntoView({ behavior: "smooth", inline: "start" });
+        }
+      }, 0);
+
     },
+
     [cards]
   );
 
-  // updateCard関数を定義
+  const handleDragUpdate = useCallback(
+    (update) => {
+      if (!update.destination) return;
+
+      const destinationDay = parseInt(update.destination.droppableId);
+      setTimeout(() => {
+        setSelectedDay(destinationDay)
+        
+      }, 0);
+    },
+    []
+  );
+
   const updateCard = (day, updatedCard) => {
     setCards((prevCards) => ({
       ...prevCards,
@@ -130,7 +201,6 @@ const Trip = () => {
         card.id === updatedCard.id ? updatedCard : card
       ),
     }));
-    // console.log(cards[day]);
   };
 
   const daysContextValue = useMemo(() => ({ days, setDays }), [days]);
@@ -155,35 +225,69 @@ const Trip = () => {
             {showPlans && (
               <>
                 <DaySelector cards={cards} setCards={setCards} />
-                <Container maxW="container.md" pb={"150px"} pt={"150px"}>
-                  <Box mt={4} overflowY="auto" position="relative">
-                    <DragDropContext onDragEnd={handleDragEnd}>
+                <Container maxW="container.md" pb={"100px"} pt={"175px"}>
+                  <DragDropContext
+                    onDragEnd={handleDragEnd}
+                    onDragUpdate={handleDragUpdate}
+                  >
+                    <Flex
+                      overflowY="scroll"
+                      position="relative"
+                      id="droppableContextOuter"
+                      mb={10}
+                    >
                       {days.map((day) => (
-                        <Droppable key={day} droppableId={String(day)}>
+
+                        <Droppable key={day} droppableId={String(day)} >
                           {(provided) => (
                             <VStack
                               {...provided.droppableProps}
                               ref={provided.innerRef}
                               spacing={4}
-                              display={selectedDay === day ? "block" : "none"}
+                              display="block"
+                              minWidth={"100%"}
+                              m={2}
+                              p={2}
+                              borderRadius={16}
+                              bg={"gray.100"}
+                              id={`day${day}-list`}
                             >
-                              {(cards[String(day)] || []).map((card, index) => (
-                                <Card
-                                  updateCard={updateCard}
+                              {(cards[day] && cards[day].length > 0) || (selectedDay == day && cards[day].length != 0) ? (
+                                cards[day]?.map((card, index) => (
+                                <Draggable
                                   key={card.id}
-                                  card={card}
+                                  draggableId={String(card.id)}
                                   index={index}
-                                  day={day}
-                                  participants={participants}
-                                />
-                              ))}
+                                >
+                                  {(provided) => (
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                    >
+                                      <Card
+                                        updateCard={updateCard}
+                                        card={card}
+                                        day={day}
+                                        participants={participants}
+                                        id={`${card.day}-${card.order}`}
+                                      />
+                                    </div>
+                                  )}
+                                </Draggable>
+                              ))
+                          ) : (
+                            <Text textAlign={"center"}>{day}日目にはまだ予定がありません</Text>
+
+                          )
+                            }
                               {provided.placeholder}
                             </VStack>
                           )}
                         </Droppable>
                       ))}
-                    </DragDropContext>
-                  </Box>
+                    </Flex>
+                  </DragDropContext>
                   <Button
                     id="add-card-button"
                     onClick={handleAddCard}

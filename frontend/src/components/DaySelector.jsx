@@ -7,6 +7,16 @@ const DaySelector = ({ cards, setCards }) => {
   const { days, setDays } = useContext(daysContext);
   const { selectedDay, setSelectedDay } = useContext(selectedDayContext);
 
+  const handleMoveDay = (day) => {
+    setSelectedDay(day);
+    const dayButton = document.getElementById(`day-button-${day}`);
+    const dayList = document.getElementById(`day${day}-list`);
+    if (dayButton) {
+      dayButton.scrollIntoView({ behavior: "smooth", inline: "start" });
+      dayList.scrollIntoView({ behavior: "smooth", inline: "start", block: "end" });
+    }
+  }
+
   const handleAddDay = () => {
     const newDay = String(days.length + 1);
     setDays([...days, newDay]);
@@ -15,7 +25,7 @@ const DaySelector = ({ cards, setCards }) => {
     setTimeout(() => {
       const addButton = document.getElementById("add-day-button");
       if (addButton) {
-        addButton.scrollIntoView({ behavior: "smooth", inline: "start" });
+        addButton.scrollIntoView({ behavior: "smooth", inline: "end" });
       }
     }, 100);
   };
@@ -32,18 +42,19 @@ const DaySelector = ({ cards, setCards }) => {
       w={"100%"}
       zIndex={1}
     >
-      <HStack spacing={4} minW="max-content">
+      <HStack minW="max-content">
         {days.map((day) => (
           <Button
             key={day}
-            onClick={() => setSelectedDay(day)}
+            onClick={() => handleMoveDay(day)}
             bg={selectedDay === day ? "blue.500" : "gray.200"}
             color={selectedDay === day ? "white" : "black"}
+            id={`day-button-${day}`}
           >
             {day} 日目
           </Button>
         ))}
-        <Button id="add-day-button" onClick={handleAddDay}>
+        <Button id="add-day-button" onClick={(day) => handleAddDay(day)}>
           +
         </Button>
       </HStack>
@@ -52,6 +63,7 @@ const DaySelector = ({ cards, setCards }) => {
 };
 
 DaySelector.propTypes = {
+  dayList: PropTypes.string,
   cards: PropTypes.object,
   setCards: PropTypes.func,
 };
