@@ -42,12 +42,14 @@ const initialParticipants = ["太郎", "二郎", "三郎"];
 
 const initialTrip = {
   tripId: "12345",
+  tripTitle: "旅行のタイトル",
   cards: initialCards,
   participants: initialParticipants,
 };
 
 const Trip = () => {
   const { tripId } = useParams();
+  const  [tripTitle, setTripTitle] = useState(initialTrip.tripTitle)
   const [participants, setParticipants] = useState(initialTrip.participants);
   const [cards, setCards] = useState(initialTrip.cards);
   const [days, setDays] = useState([1, 2, 3]);
@@ -139,7 +141,7 @@ const Trip = () => {
             <Box     
 
             >
-              <Header />
+              <Header tripTitle={tripTitle} setTripTitle={setTripTitle}/>
             </Box>
             <Navbar setShowParticipants={setShowParticipants} setShowPlans={setShowPlans} />
 

@@ -25,12 +25,12 @@ const DaySelector = ({ cards, setCards }) => {
       bg="white"
       p={4}
       shadow="md"
-      mt={1}
       borderRadius={0}
       overflowX="auto"
       position="fixed"
-      top={76}
+      top={"72px"}
       w={"100%"}
+      zIndex={1}
     >
       <HStack spacing={4} minW="max-content">
         {days.map((day) => (
