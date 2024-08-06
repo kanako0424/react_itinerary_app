@@ -16,7 +16,7 @@ import { daysContext, selectedDayContext } from "../components/contexts";
 import ParticipantManager from "../components/ParticipantManager";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
-// import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 const initialCards = {
@@ -72,15 +72,17 @@ const initialCards = {
 
 const initialParticipants = ["太郎", "二郎", "三郎"];
 
-const initialTrip = {
-  tripId: "12345",
-  tripTitle: "旅行のタイトル",
-  cards: initialCards,
-  participants: initialParticipants,
-};
+
 
 const Trip = () => {
-  // const { tripId } = useParams();
+  const { tripId } = useParams();
+  const initialTrip = {
+    tripId: tripId,
+    tripTitle: "旅行のタイトル",
+    cards: initialCards,
+    participants: initialParticipants,
+  };
+
   const [participants, setParticipants] = useState(initialTrip.participants);
   const [cards, setCards] = useState(initialTrip.cards);
   const [days, setDays] = useState([1, 2, 3]);
@@ -88,6 +90,8 @@ const Trip = () => {
   const [showParticipants, setShowParticipants] = useState(false);
   const [showPlans, setShowPlans] = useState(true);
   const [tripTitle, setTripTitle] = useState(initialTrip.tripTitle);
+
+  console.log(tripId)
 
   useEffect(() => {
     const dayList = document.getElementById(`day${selectedDay}-list`);
