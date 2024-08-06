@@ -15,7 +15,7 @@ import ParticipantManager from "../components/ParticipantManager";
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import { useParams } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const initialCards = {
   1: [
@@ -49,7 +49,7 @@ const initialTrip = {
 
 const Trip = () => {
   const { tripId } = useParams();
-  const  [tripTitle, setTripTitle] = useState(initialTrip.tripTitle)
+  const [tripTitle, setTripTitle] = useState(initialTrip.tripTitle);
   const [participants, setParticipants] = useState(initialTrip.participants);
   const [cards, setCards] = useState(initialTrip.cards);
   const [days, setDays] = useState([1, 2, 3]);
@@ -59,9 +59,15 @@ const Trip = () => {
 
   const handleAddCard = useCallback(() => {
     let date = new Date();
-    var d1 = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+    var d1 =
+      ("0" + date.getHours()).slice(-2) +
+      ":" +
+      ("0" + date.getMinutes()).slice(-2);
 
-    const lastOrder = cards[selectedDay].length > 0 ? cards[selectedDay][cards[selectedDay].length - 1].order : -1;
+    const lastOrder =
+      cards[selectedDay].length > 0
+        ? cards[selectedDay][cards[selectedDay].length - 1].order
+        : -1;
 
     const newCard = {
       day: selectedDay,
@@ -138,23 +144,20 @@ const Trip = () => {
       <selectedDayContext.Provider value={selectedDayContextValue}>
         <ChakraProvider>
           <Box bg="white" minH="100vh">
-            <Box     
-
-            >
-              <Header tripTitle={tripTitle} setTripTitle={setTripTitle}/>
+            <Box>
+              <Header tripTitle={tripTitle} setTripTitle={setTripTitle} />
             </Box>
-            <Navbar setShowParticipants={setShowParticipants} setShowPlans={setShowPlans} />
+            <Navbar
+              setShowParticipants={setShowParticipants}
+              setShowPlans={setShowPlans}
+            />
 
-            {showPlans && (<>
-                                  <DaySelector cards={cards} setCards={setCards} />
+            {showPlans && (
+              <>
+                <DaySelector cards={cards} setCards={setCards} />
                 <Container maxW="container.md" pb={"150px"} pt={"150px"}>
-
-                  <Box
-                    mt={4}
-                    overflowY="auto"
-                    position="relative"
-                  >
-                    <DragDropContext onDragEnd={handleDragEnd} >
+                  <Box mt={4} overflowY="auto" position="relative">
+                    <DragDropContext onDragEnd={handleDragEnd}>
                       {days.map((day) => (
                         <Droppable key={day} droppableId={String(day)}>
                           {(provided) => (
@@ -189,7 +192,8 @@ const Trip = () => {
                   >
                     カードを追加
                   </Button>
-                </Container></>
+                </Container>
+              </>
             )}
 
             {showParticipants && (
