@@ -1,6 +1,5 @@
 import { Box, Avatar, Input, HStack } from "@chakra-ui/react";
 import PropTypes from "prop-types";
-import { useState } from "react";
 
 export default function Header({tripTitle, setTripTitle}) {
 
