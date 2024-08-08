@@ -1,0 +1,15 @@
+{
+  "name": "itinerary-app-backend",
+  "version": "1.0.0",
+  "description": "itinerary-app-backend",
+  "scripts": {
+    "dev": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.15.0"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.3.0",
+    "firebase-functions": "^5.0.1"
+  }
+}
