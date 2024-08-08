@@ -6,14 +6,20 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
+import express, { Request, Response } from "express";
+const { onRequest } = require('firebase-functions/v2/https');
+// import * as logger from "firebase-functions/logger";
 
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+const app = express();
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+app.use((req: Request, res: Response) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*")
+    res.header("Access-Control-Allow-Headers", "*");
+})
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// build multiple CRUD interfaces:
+app.get('/', (req, res) => res.send(JSON.stringify({Key: 'helloWorld'})));
+
+// Expose Express API as a single Cloud Function:
+exports.widgets = onRequest(app);

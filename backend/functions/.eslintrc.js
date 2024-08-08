@@ -24,6 +24,11 @@ module.exports = {
     "@typescript-eslint",
     "import",
   ],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
   rules: {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,

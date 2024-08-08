@@ -14,5 +14,11 @@ npm install
 - ローカル環境で動作のテストをする場合は以下を実行します。
 
 ```bash
-firebase emulators:start
+npm run build
+firebase emulators:start --only functions
+```
+
+## deploy
+```bash
+firebase deploy
 ```
